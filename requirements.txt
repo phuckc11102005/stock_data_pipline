@@ -1,0 +1,32 @@
+# Stock Data Pipeline — Dependencies
+
+# ─── Core Python ─────────────────────────────────────
+polars>=0.20.0
+duckdb>=0.10.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# ─── Data Sources ─────────────────────────────────────
+yfinance>=0.2.38
+vnstock>=3.0.0
+
+# ─── Storage ──────────────────────────────────────────
+minio>=7.2.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# ─── Orchestration ────────────────────────────────────
+apache-airflow>=2.9.0
+
+# ─── Alerting ─────────────────────────────────────────
+python-telegram-bot>=21.0.0
+
+# ─── Dashboard ────────────────────────────────────────
+streamlit>=1.35.0
+plotly>=5.22.0
+
+# ─── Utilities ────────────────────────────────────────
+python-dotenv>=1.0.0
+tenacity>=8.3.0       # retry logic
+structlog>=24.0.0     # structured logging
+pyarrow>=16.0.0       # parquet support

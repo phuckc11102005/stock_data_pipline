@@ -1,0 +1,31 @@
+# CODEOWNERS — theo docs/03-roles-and-responsibilities.md
+# Ai sẽ tự động được assign review khi có PR chạm vào file/folder
+
+# Default: toàn bộ codebase
+*                         @team-lead
+
+# Role 1: Data Ingestion
+/ingestion/               @role1-ingestion
+/tests/ingestion/         @role1-ingestion
+
+# Role 2: Processing & Indicators
+/processing/              @role2-processing
+/tests/processing/        @role2-processing
+
+# Role 3: Alerting
+/alerting/                @role3-alerting
+/tests/alerting/          @role3-alerting
+
+# Role 4: DevOps / Infrastructure (có thể self-merge config files)
+/docker-compose.yml       @role4-devops
+/Dockerfile               @role4-devops
+/.github/                 @role4-devops @team-lead
+/pyproject.toml           @role4-devops @team-lead
+/.pre-commit-config.yaml  @role4-devops
+
+# Orchestration (Airflow DAGs)
+/orchestration/           @role4-devops @team-lead
+
+# Config chung
+/config/                  @team-lead
+/docs/                    @team-lead

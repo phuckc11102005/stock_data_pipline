@@ -1,0 +1,25 @@
+name: Setup GitHub Labels
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Nhập 'yes' để xác nhận tạo labels"
+        required: true
+        default: "no"
+
+jobs:
+  sync-labels:
+    name: 🏷️ Sync Labels
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'yes'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Sync labels via github-label-sync
+        uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          manifest: .github/labels.yml
