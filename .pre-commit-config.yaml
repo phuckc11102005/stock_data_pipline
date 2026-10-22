@@ -1,5 +1,5 @@
 repos:
-  # ─── Ruff: Linter (thay flake8) ───────────────
+  # ─── Ruff: Linter + Import sorter (thay flake8 & isort) ───
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.4
     hooks:
@@ -12,13 +12,6 @@ repos:
     rev: 24.4.2
     hooks:
       - id: black
-
-  # ─── isort: Import sorter ─────────────────────
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
 
   # ─── Trailing whitespace & misc ───────────────
   - repo: https://github.com/pre-commit/pre-commit-hooks
