@@ -10,7 +10,7 @@ Cần quyết định cách tổ chức và lưu trữ dữ liệu.
 Sử dụng **mô hình Medallion Architecture** với MinIO làm Data Lake và PostgreSQL làm serving layer.
 
 - **Bronze:** MinIO — dữ liệu thô, không bao giờ bị ghi đè
-- **Silver:** MinIO — dữ liệu làm sạch, partitioned theo tháng  
+- **Silver:** MinIO — dữ liệu làm sạch, partitioned theo tháng
 - **Gold:** PostgreSQL — dữ liệu tổng hợp, tối ưu cho query dashboard
 
 ## Lý do không dùng database ngay từ đầu cho Bronze/Silver

@@ -1,4 +1,5 @@
 # Stock Data Pipeline — Dependencies
+--extra-index-url https://vnstocks.com/api/packages
 
 # ─── Core Python ─────────────────────────────────────
 polars>=0.20.0
