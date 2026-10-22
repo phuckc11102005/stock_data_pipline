@@ -1,0 +1,133 @@
+name: CI — Lint, Test & Coverage
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Lint & Format check
+  # ─────────────────────────────────────────────
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install lint dependencies
+        run: |
+          pip install --upgrade pip
+          pip install ruff black isort mypy
+
+      - name: Run ruff linter
+        run: ruff check . --output-format=github
+
+      - name: Check black formatting
+        run: black --check --diff .
+
+      - name: Check isort import order
+        run: isort --check-only --diff .
+
+      - name: Run mypy type checker
+        run: mypy . --ignore-missing-imports --exclude '(tests|scripts|orchestration)'
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Unit Tests + Coverage
+  # ─────────────────────────────────────────────
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-mock
+
+      - name: Run unit tests with coverage
+        run: |
+          pytest tests/ \
+            -m "not integration and not e2e" \
+            --cov=. \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=70 \
+            -v
+
+      - name: Upload coverage report to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unit-tests
+          fail_ci_if_error: false
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Secret Scan (no hardcoded credentials)
+  # ─────────────────────────────────────────────
+  secret-scan:
+    name: 🔐 Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks secret scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────
+  # JOB 4: PR Size Guard (< 300 lines ideally)
+  # ─────────────────────────────────────────────
+  pr-size-check:
+    name: 📏 PR Size Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR diff size
+        run: |
+          LINES=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | grep -oP '\d+ insertion' | grep -oP '\d+' || echo 0)
+          echo "Lines changed: $LINES"
+          if [ "$LINES" -gt 500 ]; then
+            echo "⚠️  WARNING: PR has $LINES inserted lines (ideal < 300)."
+            echo "Consider splitting into smaller PRs per doc/05-github-workflow.md"
+          fi

@@ -1,0 +1,56 @@
+# ─── Python ──────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ─── Test & Coverage ─────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Secrets & Config ────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+
+# ─── IDE ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS ──────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Docker ──────────────────────────────────
+*.log
+logs/
+
+# ─── Data / Artifacts ────────────────────────
+data/
+*.parquet
+*.duckdb
+fixtures/
+!tests/fixtures/
+
+# ─── Airflow ─────────────────────────────────
+airflow.db
+airflow.cfg
+unittests.cfg
+webserver_config.py

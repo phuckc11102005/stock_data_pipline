@@ -1,0 +1,81 @@
+[build]
+  target = "."
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=. --cov-report=term-missing --cov-fail-under=70"
+markers = [
+  "unit: Unit tests (no external services)",
+  "integration: Integration tests (requires MinIO, PostgreSQL)",
+  "e2e: End-to-end pipeline tests",
+]
+
+[tool.coverage.run]
+omit = [
+  "tests/*",
+  "scripts/*",
+  "orchestration/dags/*",
+  ".venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+]
+
+# ─── Ruff ────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+]
+ignore = [
+  "E501",  # line-length (handled by black)
+  "B008",  # do not perform function calls in argument defaults
+]
+exclude = [
+  ".git",
+  ".venv",
+  "__pycache__",
+  "orchestration/dags",
+]
+
+[tool.ruff.isort]
+known-first-party = ["ingestion", "processing", "alerting", "config", "orchestration", "dashboard"]
+
+# ─── Black ───────────────────────────────────────────────────
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | __pycache__
+  | orchestration/dags
+)/
+'''
+
+# ─── isort ───────────────────────────────────────────────────
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["ingestion", "processing", "alerting", "config"]
+
+# ─── mypy ────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+exclude = ["tests/", "scripts/", "orchestration/"]

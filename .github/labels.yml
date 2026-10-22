@@ -1,0 +1,67 @@
+# Stock Data Pipeline — GitHub Labels
+# File này dùng để tạo labels bằng github-label-sync hoặc GitHub API
+# Xem docs/05-github-workflow.md
+
+labels:
+  # ─── Trạng thái PR ───────────────────────────
+  - name: ready-for-review
+    color: "0075ca"
+    description: "PR đã hoàn chỉnh, cần review"
+
+  - name: work-in-progress
+    color: "e4e669"
+    description: "Draft PR, chưa cần review"
+
+  - name: needs-changes
+    color: "d93f0b"
+    description: "Review yêu cầu sửa đổi"
+
+  - name: approved
+    color: "0e8a16"
+    description: "Đã được approve, chờ merge"
+
+  # ─── Loại thay đổi ───────────────────────────
+  - name: "feat"
+    color: "a2eeef"
+    description: "Tính năng mới"
+
+  - name: "fix"
+    color: "d73a4a"
+    description: "Sửa lỗi"
+
+  - name: "refactor"
+    color: "cfd3d7"
+    description: "Tái cấu trúc code"
+
+  - name: "test"
+    color: "f9d0c4"
+    description: "Thêm hoặc sửa tests"
+
+  - name: "docs"
+    color: "0075ca"
+    description: "Cập nhật tài liệu"
+
+  - name: "chore"
+    color: "e4e669"
+    description: "Cấu hình, CI/CD"
+
+  - name: "perf"
+    color: "bfd4f2"
+    description: "Tối ưu hiệu năng"
+
+  # ─── Module ──────────────────────────────────
+  - name: "module: ingestion"
+    color: "FBCA04"
+    description: "Liên quan đến layer Ingestion (Role 1)"
+
+  - name: "module: processing"
+    color: "84b6eb"
+    description: "Liên quan đến Processing & Indicators (Role 2)"
+
+  - name: "module: alerting"
+    color: "e99695"
+    description: "Liên quan đến Alerting / Telegram (Role 3)"
+
+  - name: "module: devops"
+    color: "c5def5"
+    description: "Docker, CI/CD, Infrastructure (Role 4)"

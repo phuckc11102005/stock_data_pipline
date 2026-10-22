@@ -1,0 +1,146 @@
+name: Nightly — E2E & Integration Tests
+
+on:
+  schedule:
+    # Chạy lúc 2:00 AM UTC (9:00 AM ICT) mỗi ngày
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Lý do chạy thủ công"
+        required: false
+        default: "Manual trigger"
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB: Integration Tests với testcontainers
+  # ─────────────────────────────────────────────
+  integration-tests:
+    name: 🔗 Integration Tests (MinIO + PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stock_pipeline_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-mock testcontainers
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for MinIO..."
+          sleep 5
+          echo "Waiting for PostgreSQL..."
+          sleep 3
+
+      - name: Run integration tests
+        env:
+          MINIO_ENDPOINT: localhost:9000
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+          POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/stock_pipeline_test
+          # Telegram không dùng thật trong test — dùng mock/sandbox
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_TEST }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID_TEST }}
+        run: |
+          pytest tests/integration/ \
+            -m "integration" \
+            --cov=. \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            -v
+
+      - name: Upload integration coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: integration-tests
+          fail_ci_if_error: false
+
+  # ─────────────────────────────────────────────
+  # JOB: E2E Pipeline test (toàn bộ luồng)
+  # ─────────────────────────────────────────────
+  e2e-tests:
+    name: 🚀 E2E Pipeline Tests
+    runs-on: ubuntu-latest
+    needs: integration-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run E2E tests
+        env:
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_TEST }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID_TEST }}
+        run: |
+          pytest tests/e2e/ \
+            -m "e2e" \
+            -v \
+            --timeout=120
+
+  notify-failure:
+    name: 📣 Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [integration-tests, e2e-tests]
+    if: failure()
+    steps:
+      - name: Send Telegram alert on nightly failure
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN_TEST }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID_TEST }}" \
+            -d text="🚨 *[Nightly CI Failed]* Pipeline: ${{ github.workflow }}%0ARun: ${{ github.run_url }}" \
+            -d parse_mode="Markdown"
