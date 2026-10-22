@@ -15,6 +15,7 @@ omit = [
   "tests/*",
   "scripts/*",
   "orchestration/dags/*",
+  "dashboard/*",
   ".venv/*",
 ]
 
