@@ -2,7 +2,12 @@
 
 <!-- Tóm tắt ngắn gọn những gì PR này thay đổi và tại sao -->
 
-Closes #<!-- issue number -->
+---
+
+## ⚠️ Liên kết Issue (BẮT BUỘC)
+
+<!-- Điền số issue — GitHub sẽ tự CLOSE issue khi PR được merge vào develop/main -->
+Closes #
 
 ---
 
@@ -29,6 +34,7 @@ Closes #<!-- issue number -->
 - [ ] **Không có hardcode credentials / API keys**
 - [ ] Đã cập nhật tài liệu liên quan (nếu thay đổi interface)
 - [ ] PR nhỏ, tập trung vào 1 task (< 300 dòng thay đổi lý tưởng)
+- [ ] **Đã điền `Closes #<số>` ở phần Liên kết Issue phía trên**
 
 ---
 
