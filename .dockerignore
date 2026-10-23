@@ -1,0 +1,59 @@
+# ─── Python ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# ─── Virtual Environment ──────────────────────────────
+.venv/
+venv/
+ENV/
+env/
+
+# ─── Testing & Coverage ───────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ─── Linting ──────────────────────────────────────────
+.ruff_cache/
+.mypy_cache/
+
+# ─── Git ──────────────────────────────────────────────
+.git/
+.gitignore
+
+# ─── Secrets & Environment ────────────────────────────
+.env
+*.env.local
+
+# ─── IDE / OS ─────────────────────────────────────────
+.idea/
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# ─── Data & Logs (không đưa vào image) ───────────────
+data/
+logs/
+*.log
+*.parquet
+*.csv
+
+# ─── Docs (không cần trong container) ────────────────
+docs/
+*.md
